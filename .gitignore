@@ -1,0 +1,21 @@
+# Dependencies (never commit — restores via pnpm install)
+node_modules
+
+# Build outputs
+dist
+build
+.next
+.turbo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs & caches
+*.log
+.pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
