@@ -1,0 +1,30 @@
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { Repository } from 'typeorm';
+import { Response } from 'express';
+import { User } from '../../database/entities/user.entity';
+import { RefreshToken } from '../../database/entities/refresh-token.entity';
+import { LoginDto } from './dto/login.dto';
+import type { AuthUser } from '@dental-ms/shared-types';
+import { Branch } from '../../database/entities/branch.entity';
+import { PermissionsService } from '../permissions/permissions.service';
+export type { AuthUser };
+export declare class AuthService {
+    private readonly userRepo;
+    private readonly refreshTokenRepo;
+    private readonly branchRepo;
+    private readonly jwtService;
+    private readonly config;
+    private readonly permissionsService;
+    constructor(userRepo: Repository<User>, refreshTokenRepo: Repository<RefreshToken>, branchRepo: Repository<Branch>, jwtService: JwtService, config: ConfigService, permissionsService: PermissionsService);
+    private getAccessExpires;
+    private getRefreshExpires;
+    private parseExpiry;
+    validateUser(email: string, password: string): Promise<User | null>;
+    getAllowedBranchIds(user: User): Promise<string[]>;
+    login(dto: LoginDto, res: Response): Promise<AuthUser>;
+    refresh(res: Response, refreshTokenFromCookie: string): Promise<AuthUser>;
+    getMe(user: User, allowedBranches: string[]): Promise<AuthUser>;
+    logout(res: Response, refreshTokenFromCookie?: string): Promise<void>;
+    toAuthUser(user: User, allowedBranches: string[]): Promise<AuthUser>;
+}

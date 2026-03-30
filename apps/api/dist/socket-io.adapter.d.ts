@@ -1,0 +1,8 @@
+import { IoAdapter } from '@nestjs/platform-socket.io';
+import { ServerOptions } from 'socket.io';
+import { INestApplicationContext } from '@nestjs/common';
+export declare class SocketIoAdapter extends IoAdapter {
+    private readonly corsOrigin;
+    constructor(appOrHttpServer: INestApplicationContext | any, corsOrigin?: string);
+    createIOServer(port: number, options?: ServerOptions): any;
+}

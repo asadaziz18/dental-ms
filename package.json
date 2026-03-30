@@ -1,0 +1,16 @@
+{
+  "name": "dental-ms",
+  "private": true,
+  "description": "Dental Management System — multi-branch clinic chain with offline support",
+  "scripts": {
+    "dev": "pnpm run build:types && pnpm run --parallel --filter \"./apps/*\" dev",
+    "build": "pnpm run --recursive build",
+    "build:types": "pnpm --filter @dental-ms/shared-types build",
+    "web": "pnpm --filter web dev",
+    "api": "pnpm --filter api dev"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.14.2"
+}

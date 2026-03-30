@@ -1,0 +1,1 @@
+{"version":3,"file":"update-status.dto.js","sourceRoot":"","sources":["../../../../src/modules/appointments/dto/update-status.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,qDAAuC;AAEvC,MAAM,QAAQ,GAAG,CAAC,WAAW,EAAE,WAAW,EAAE,aAAa,EAAE,WAAW,EAAE,WAAW,EAAE,SAAS,CAAU,CAAC;AAEzG,MAAa,eAAe;IAE1B,MAAM,CAA6B;CACpC;AAHD,0CAGC;AADC;IADC,IAAA,sBAAI,EAAC,QAAQ,CAAC;;+CACoB"}
