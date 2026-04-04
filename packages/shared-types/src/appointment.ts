@@ -32,7 +32,13 @@ export interface Appointment {
   notes: string | null;
   createdAt: string;
   updatedAt: string;
-  patient?: { id: string; firstName: string; lastName: string };
+  patient?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    phone?: string | null;
+    email?: string | null;
+  };
   doctor?: { id: string; fullName: string };
 }
 

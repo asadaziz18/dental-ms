@@ -1,3 +1,4 @@
+import type { Appointment } from '@dental-ms/shared-types';
 import { api } from '@/core/api/client';
 
 export interface DashboardSummary {
@@ -7,15 +8,8 @@ export interface DashboardSummary {
   pendingPayments: { totalAmount: number; overdueCount: number };
 }
 
-export interface TodayAppointmentItem {
-  id: string;
-  start: string;
-  end: string;
-  type: string;
-  status: string;
-  patient?: { id: string; firstName: string; lastName: string };
-  doctor?: { id: string; fullName: string } | null;
-}
+/** Today's list from GET /dashboard/appointments/today — full appointment rows */
+export type TodayAppointmentItem = Appointment;
 
 export interface RevenueChartPoint {
   date: string;
@@ -55,8 +49,8 @@ export async function fetchDashboardSummary(): Promise<DashboardSummary> {
   return data;
 }
 
-export async function fetchTodayAppointments(): Promise<TodayAppointmentItem[]> {
-  const { data } = await api.get<TodayAppointmentItem[]>('/dashboard/appointments/today');
+export async function fetchTodayAppointments(): Promise<Appointment[]> {
+  const { data } = await api.get<Appointment[]>('/dashboard/appointments/today');
   return data;
 }
 

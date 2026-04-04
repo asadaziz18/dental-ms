@@ -23,6 +23,8 @@ export interface Appointment {
         id: string;
         firstName: string;
         lastName: string;
+        phone?: string | null;
+        email?: string | null;
     };
     doctor?: {
         id: string;

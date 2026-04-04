@@ -231,7 +231,19 @@ export function PrescriptionPad({
                   className="no-print"
                   onClick={() => {
                     setPrintingId(rx.id);
-                    setTimeout(() => window.print(), 200);
+                    setTimeout(() => {
+                      document.body.classList.add('print-prescription-only');
+                      let ended = false;
+                      const endPrescriptionPrint = () => {
+                        if (ended) return;
+                        ended = true;
+                        document.body.classList.remove('print-prescription-only');
+                        window.clearTimeout(fallback);
+                      };
+                      const fallback = window.setTimeout(endPrescriptionPrint, 5000);
+                      window.addEventListener('afterprint', endPrescriptionPrint, { once: true });
+                      window.print();
+                    }, 200);
                   }}
                 >
                   Print

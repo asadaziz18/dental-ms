@@ -3,7 +3,18 @@ import { HStack, Button, Tooltip, useBreakpointValue } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { useSyncStatus } from '@/shared/hooks/useSyncStatus';
 
-export function QuickActionsBar() {
+export interface QuickActionsBarProps {
+  onPrintTodaySchedule?: () => void;
+  printTodayScheduleDisabled?: boolean;
+  /** Shown when the print button is disabled (e.g. no branch, still loading). */
+  printTodayScheduleDisabledReason?: string;
+}
+
+export function QuickActionsBar({
+  onPrintTodaySchedule,
+  printTodayScheduleDisabled = false,
+  printTodayScheduleDisabledReason,
+}: QuickActionsBarProps) {
   const { isOnline } = useSyncStatus();
   const navigate = useNavigate();
   const isCompact = useBreakpointValue({ base: true, md: false });
@@ -29,9 +40,25 @@ export function QuickActionsBar() {
           </Button>
         </span>
       </Tooltip>
-      <Button size="sm" variant="outline" colorScheme="teal" onClick={() => window.print()}>
-        {!isCompact && "Print Today's Schedule"}
-      </Button>
+      <Tooltip
+        label={
+          printTodayScheduleDisabled
+            ? (printTodayScheduleDisabledReason ?? 'Not available right now')
+            : 'Print a detailed list of today’s appointments (times, patient, phone, doctor, chair, notes)'
+        }
+      >
+        <span>
+          <Button
+            size="sm"
+            variant="outline"
+            colorScheme="teal"
+            isDisabled={printTodayScheduleDisabled || !onPrintTodaySchedule}
+            onClick={() => onPrintTodaySchedule?.()}
+          >
+            {!isCompact && "Print Today's Schedule"}
+          </Button>
+        </span>
+      </Tooltip>
     </HStack>
   );
 }

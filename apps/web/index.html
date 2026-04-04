@@ -10,10 +10,32 @@
       @media print {
         .no-print { display: none !important; }
         body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        /* When printing a prescription, hide app shell and show only the prescription slip */
-        body * { visibility: hidden; }
-        .prescription-print-view, .prescription-print-view * { visibility: visible; }
-        .prescription-print-view { position: absolute; left: 0; top: 0; width: 100%; }
+        /*
+         * Prescription print: PrescriptionPad adds body.print-prescription-only before window.print().
+         * Without that class, hiding everything would blank normal prints (e.g. Today's Schedule).
+         */
+        body.print-prescription-only * { visibility: hidden; }
+        body.print-prescription-only .prescription-print-view,
+        body.print-prescription-only .prescription-print-view * { visibility: visible; }
+        body.print-prescription-only .prescription-print-view {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+        body.print-today-schedule-only * {
+          visibility: hidden;
+        }
+        body.print-today-schedule-only .today-schedule-print-view,
+        body.print-today-schedule-only .today-schedule-print-view * {
+          visibility: visible;
+        }
+        body.print-today-schedule-only .today-schedule-print-view {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
       }
     </style>
   </head>

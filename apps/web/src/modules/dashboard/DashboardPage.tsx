@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Box, Grid, Heading, Alert, AlertIcon, Select } from '@chakra-ui/react';
 import { useAuth } from '@/core/auth';
 import { useBranchId, useSetBranchId } from '@/core/branch';
@@ -19,6 +19,7 @@ import { UpcomingAppointments } from './components/UpcomingAppointments';
 import { LowStockAlerts } from './components/LowStockAlerts';
 import { DoctorPerformanceTable } from './components/DoctorPerformanceTable';
 import { QuickActionsBar } from './components/QuickActionsBar';
+import { TodaySchedulePrintOverlay } from './components/TodaySchedulePrintOverlay';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/core/api/client';
 
@@ -44,6 +45,7 @@ export default function DashboardPage() {
   const role = (user?.role ?? 'Receptionist') as Role;
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [revenueRange, setRevenueRange] = useState<'30d' | '12m'>('30d');
+  const [schedulePrintOpen, setSchedulePrintOpen] = useState(false);
 
   const isSuperAdmin = role === 'SuperAdmin';
   const showChartsAndRevenue = role === 'SuperAdmin' || role === 'BranchAdmin';
@@ -94,12 +96,49 @@ export default function DashboardPage() {
       </Select>
     ) : null;
 
+  const currentBranchQuery = useQuery({
+    queryKey: ['branches', 'current', branchId],
+    queryFn: async () => {
+      const { data } = await api.get<{ id: string; name: string }>(`/branches/${branchId}`);
+      return data;
+    },
+    enabled: !!branchId && !isSuperAdmin,
+  });
+
+  const branchName = useMemo(() => {
+    if (branchId && branches.length > 0) {
+      const b = branches.find((x) => x.id === branchId);
+      if (b?.name) return b.name;
+    }
+    if (currentBranchQuery.data?.name) return currentBranchQuery.data.name;
+    return 'Clinic';
+  }, [branchId, branches, currentBranchQuery.data?.name]);
+
+  const schedulePrintDisabled = !branchId || todayAppts.isLoading;
+  const schedulePrintDisabledReason = !branchId
+    ? 'Select a branch first'
+    : todayAppts.isLoading
+      ? 'Loading appointments…'
+      : undefined;
+
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={4} mb={6}>
         <Heading size="lg">Dashboard</Heading>
-        <QuickActionsBar />
+        <QuickActionsBar
+          onPrintTodaySchedule={() => setSchedulePrintOpen(true)}
+          printTodayScheduleDisabled={schedulePrintDisabled}
+          printTodayScheduleDisabledReason={schedulePrintDisabledReason}
+        />
       </Box>
+
+      {schedulePrintOpen && branchId && (
+        <TodaySchedulePrintOverlay
+          appointments={todayAppts.data ?? []}
+          branchName={branchName}
+          onClose={() => setSchedulePrintOpen(false)}
+        />
+      )}
 
       {!isOnline && (
         <Alert status="warning" mb={4} borderRadius="md">
