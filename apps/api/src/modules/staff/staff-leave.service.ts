@@ -49,10 +49,9 @@ export class StaffLeaveService {
     const user = await this.userRepo.findOne({ where: { id: dto.userId } });
     if (!user) throw new NotFoundException('User not found');
     if (user.branchId !== branchId) throw new ForbiddenException('User not in this branch');
-    if (dto.branchId !== branchId) throw new ForbiddenException('Branch mismatch');
     const leave = this.leaveRepo.create({
       userId: dto.userId,
-      branchId: dto.branchId,
+      branchId,
       fromDate: dto.fromDate,
       toDate: dto.toDate,
       type: (dto.type as StaffLeave['type']) ?? 'annual',

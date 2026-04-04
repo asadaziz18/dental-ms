@@ -11,11 +11,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateStaffLeaveDto = exports.CreateStaffLeaveDto = void 0;
 const class_validator_1 = require("class-validator");
+const is_uuid_string_decorator_1 = require("../../../common/validators/is-uuid-string.decorator");
 const TYPES = ['annual', 'sick', 'unpaid', 'other'];
 const STATUSES = ['Pending', 'Approved', 'Rejected', 'Cancelled'];
 class CreateStaffLeaveDto {
     userId;
-    branchId;
     fromDate;
     toDate;
     type;
@@ -23,13 +23,9 @@ class CreateStaffLeaveDto {
 }
 exports.CreateStaffLeaveDto = CreateStaffLeaveDto;
 __decorate([
-    (0, class_validator_1.IsUUID)(),
+    (0, is_uuid_string_decorator_1.IsUuidString)(),
     __metadata("design:type", String)
 ], CreateStaffLeaveDto.prototype, "userId", void 0);
-__decorate([
-    (0, class_validator_1.IsUUID)(),
-    __metadata("design:type", String)
-], CreateStaffLeaveDto.prototype, "branchId", void 0);
 __decorate([
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)

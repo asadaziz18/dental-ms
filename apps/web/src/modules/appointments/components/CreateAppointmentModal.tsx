@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -21,15 +21,24 @@ import {
   ListItem,
   Box,
   Text,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
 } from '@chakra-ui/react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { AppointmentType } from '@dental-ms/shared-types';
+import type { Appointment, AppointmentType } from '@dental-ms/shared-types';
 import { useCreateAppointmentMutation, useDoctorsQuery } from '../hooks/use-appointments';
 import { usePatientsQuery } from '@/modules/patients/hooks/use-patients';
 import { useBranchId } from '@/core/branch';
 import { APPOINTMENT_TYPES } from '@dental-ms/shared-types';
+import { useBranchDetail } from '@/modules/branches/hooks/use-branches';
+import { useBookingSlipPlatformSettingsQuery } from '@/modules/platform-settings';
+import { downloadAppointmentBookingSlip } from '../utils/download-booking-slip';
 
 const schema = z.object({
   patientId: z.string().min(1, 'Select a patient'),
@@ -60,8 +69,33 @@ export function CreateAppointmentModal({
   const toast = useToast();
   const [patientSearch, setPatientSearch] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const [slipAppointment, setSlipAppointment] = useState<Appointment | null>(null);
+  const slipCancelRef = useRef<HTMLButtonElement>(null);
 
   const branchId = useBranchId();
+  const { data: branch } = useBranchDetail(
+    branchId,
+    !!branchId && (isOpen || !!slipAppointment),
+  );
+  const { data: slipSettings } = useBookingSlipPlatformSettingsQuery(
+    isOpen || !!slipAppointment,
+  );
+
+  const clinic = useMemo(() => {
+    if (!branch) {
+      return { name: 'Clinic' as const };
+    }
+    return {
+      name: branch.name,
+      address: branch.address || null,
+      city: branch.city || null,
+      phone: branch.phone || null,
+      email: branch.email || null,
+      code: branch.code || null,
+      openingTime: branch.openingTime || null,
+      closingTime: branch.closingTime || null,
+    };
+  }, [branch]);
   const createMutation = useCreateAppointmentMutation();
   const { data: doctors = [] } = useDoctorsQuery(branchId);
   const { data: patientsData } = usePatientsQuery({
@@ -77,7 +111,6 @@ export function CreateAppointmentModal({
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
     control,
     formState: { errors },
@@ -95,12 +128,9 @@ export function CreateAppointmentModal({
     },
   });
 
-  const start = watch('start');
-  const end = watch('end');
-
   const onSubmit = async (data: FormData) => {
     try {
-      await createMutation.mutateAsync({
+      const created = await createMutation.mutateAsync({
         patientId: data.patientId,
         doctorId: data.doctorId || null,
         chair: data.chair || null,
@@ -111,11 +141,18 @@ export function CreateAppointmentModal({
         sendReminder: data.sendReminder,
         notes: data.notes || null,
       });
-      toast({ title: 'Appointment created', status: 'success', duration: 2000 });
       reset();
       setSelectedPatientId(null);
       setPatientSearch('');
       onClose();
+      toast({
+        title: 'Appointment created',
+        description: 'When the slip dialog appears, pick Standard (A4) or Thermal (80mm).',
+        status: 'success',
+        duration: 5000,
+      });
+      // Open after the create modal finishes closing so the slip dialog is not hidden under its overlay.
+      window.setTimeout(() => setSlipAppointment(created), 380);
     } catch (e: unknown) {
       const message = e && typeof e === 'object' && 'response' in e
         ? (e as { response?: { data?: { message?: string } } }).response?.data?.message
@@ -136,7 +173,38 @@ export function CreateAppointmentModal({
     onClose();
   };
 
+  const handleSlipDownload = async (variant: 'standard' | 'thermal') => {
+    if (!slipAppointment) return;
+    try {
+      await downloadAppointmentBookingSlip({
+        variant,
+        appointment: slipAppointment,
+        clinic,
+        productOwnerFooter: slipSettings?.productOwnerFooter,
+      });
+      toast({
+        title: 'PDF saved',
+        description:
+          variant === 'thermal'
+            ? 'Thermal (80mm) slip saved to your downloads.'
+            : 'Standard (A4) slip saved to your downloads.',
+        status: 'success',
+        duration: 2500,
+      });
+    } catch (pdfErr: unknown) {
+      toast({
+        title: 'Could not create PDF',
+        description:
+          pdfErr instanceof Error ? pdfErr.message : 'Unexpected error.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
+    <>
     <Modal isOpen={isOpen} onClose={handleClose} size="lg">
       <ModalOverlay />
       <ModalContent>
@@ -269,5 +337,47 @@ export function CreateAppointmentModal({
         </ModalFooter>
       </ModalContent>
     </Modal>
+
+    <AlertDialog
+      isOpen={!!slipAppointment}
+      leastDestructiveRef={slipCancelRef}
+      onClose={() => setSlipAppointment(null)}
+    >
+      <AlertDialogOverlay bg="blackAlpha.600" zIndex={2000}>
+        <AlertDialogContent zIndex={2001}>
+          <AlertDialogHeader fontSize="lg" fontWeight="bold">
+            Download booking slip
+          </AlertDialogHeader>
+          <AlertDialogBody>
+            Nothing extra to enable in Settings: pick a format here after each create. Standard (A4) is
+            full letter size; Thermal (80mm) is a narrow receipt page (different layout and font). Filenames
+            contain &quot;a4&quot; or &quot;thermal-80mm&quot;. If both look similar on screen, open File →
+            Properties (or similar) to confirm page width.
+          </AlertDialogBody>
+          <AlertDialogFooter flexWrap="wrap" gap={2}>
+            <Button ref={slipCancelRef} onClick={() => setSlipAppointment(null)}>
+              Skip
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                void handleSlipDownload('thermal');
+              }}
+            >
+              Thermal (80mm)
+            </Button>
+            <Button
+              colorScheme="teal"
+              onClick={() => {
+                void handleSlipDownload('standard');
+              }}
+            >
+              Standard (A4)
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogOverlay>
+    </AlertDialog>
+    </>
   );
 }

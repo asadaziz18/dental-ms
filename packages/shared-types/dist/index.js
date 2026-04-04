@@ -42,3 +42,4 @@ __exportStar(require("./imaging"), exports);
 __exportStar(require("./reports"), exports);
 __exportStar(require("./subscription"), exports);
 __exportStar(require("./lab"), exports);
+__exportStar(require("./platform-settings"), exports);

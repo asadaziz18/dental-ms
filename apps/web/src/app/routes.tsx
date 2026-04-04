@@ -29,6 +29,7 @@ import { SettingsSubscriptionPage } from '@/modules/subscription/pages/SettingsS
 import { SettingsPage } from './pages/SettingsPage';
 import { UserManualPage } from '@/modules/help';
 import { RolePermissionsPage } from '@/modules/permissions';
+import { BookingSlipFooterSettingsPage } from '@/modules/platform-settings';
 import {
   BranchListPage,
   CreateBranchPage,
@@ -82,6 +83,7 @@ export function AppRoutes() {
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/settings" element={<RoleGuard roles={['SuperAdmin', 'BranchAdmin']}><SettingsPage /></RoleGuard>} />
         <Route path="/settings/role-permissions" element={<RoleGuard roles={['SuperAdmin']}><RolePermissionsPage /></RoleGuard>} />
+        <Route path="/settings/booking-slip-footer" element={<RoleGuard roles={['SuperAdmin']}><BookingSlipFooterSettingsPage /></RoleGuard>} />
         <Route path="/settings/branches" element={<RoleGuard roles={['SuperAdmin', 'BranchAdmin']}><BranchListPage /></RoleGuard>} />
         <Route path="/settings/branches/new" element={<RoleGuard roles={['SuperAdmin']}><CreateBranchPage /></RoleGuard>} />
         <Route path="/settings/branches/:id" element={<RoleGuard roles={['SuperAdmin', 'BranchAdmin', 'Doctor', 'Receptionist', 'Nurse']}><BranchDetailPage /></RoleGuard>} />

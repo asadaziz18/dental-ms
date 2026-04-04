@@ -20,16 +20,23 @@ import { ChevronLeftIcon } from '@chakra-ui/icons';
 import userManualMd from '@docs/USER_MANUAL.md?raw';
 import { parseManualMd } from './parse-manual-md';
 import { UserManualPdfDocument } from './UserManualPdfDocument';
+import { useBookingSlipPlatformSettingsQuery } from '@/modules/platform-settings';
 
 export function UserManualPage() {
   const toast = useToast();
   const [pdfLoading, setPdfLoading] = useState(false);
+  const { data: slipSettings } = useBookingSlipPlatformSettingsQuery(true);
 
   const downloadPdf = useCallback(async () => {
     setPdfLoading(true);
     try {
       const blocks = parseManualMd(userManualMd);
-      const blob = await pdf(<UserManualPdfDocument blocks={blocks} />).toBlob();
+      const blob = await pdf(
+        <UserManualPdfDocument
+          blocks={blocks}
+          productOwnerFooter={slipSettings?.productOwnerFooter}
+        />,
+      ).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -48,7 +55,7 @@ export function UserManualPage() {
     } finally {
       setPdfLoading(false);
     }
-  }, [toast]);
+  }, [toast, slipSettings?.productOwnerFooter]);
 
   const printPage = useCallback(() => {
     window.print();

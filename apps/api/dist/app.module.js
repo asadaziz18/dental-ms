@@ -30,6 +30,7 @@ const bullmq_1 = require("@nestjs/bullmq");
 const schedule_1 = require("@nestjs/schedule");
 const labs_module_1 = require("./modules/labs/labs.module");
 const permissions_module_1 = require("./modules/permissions/permissions.module");
+const platform_settings_module_1 = require("./modules/platform-settings/platform-settings.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -64,6 +65,7 @@ exports.AppModule = AppModule = __decorate([
             dashboard_module_1.DashboardModule,
             labs_module_1.LabsModule,
             permissions_module_1.PermissionsModule,
+            platform_settings_module_1.PlatformSettingsModule,
         ],
     })
 ], AppModule);

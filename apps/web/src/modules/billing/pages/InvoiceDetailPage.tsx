@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -21,7 +21,6 @@ import {
   SimpleGrid,
 } from '@chakra-ui/react';
 import { ArrowBackIcon, AddIcon, DeleteIcon } from '@chakra-ui/icons';
-import { pdf } from '@react-pdf/renderer';
 import {
   useInvoiceQuery,
   useUpdateInvoiceMutation,
@@ -33,7 +32,9 @@ import {
 import { useProceduresQuery as useProceduresQueryTreatments } from '@/modules/treatments/hooks/use-treatments';
 import { AddLineItemModal, type AddLineItemFormValues } from '../components/AddLineItemModal';
 import { RecordPaymentModal, type RecordPaymentFormValues } from '../components/RecordPaymentModal';
-import { ReceiptPDF } from '../components/ReceiptPDF';
+import { useBranchDetail } from '@/modules/branches/hooks/use-branches';
+import { useBookingSlipPlatformSettingsQuery } from '@/modules/platform-settings';
+import { downloadReceiptPdf } from '../utils/download-receipt';
 
 const STATUS_OPTIONS = ['Draft', 'Sent', 'PartiallyPaid', 'Paid', 'Overdue', 'Cancelled'] as const;
 
@@ -48,6 +49,11 @@ export function InvoiceDetailPage() {
   const { data: invoice, isLoading, isError } = useInvoiceQuery(invoiceId);
   const { data: procedures } = useProceduresQueryTreatments();
   const { data: payments } = usePaymentsByInvoiceQuery(invoiceId);
+  const { data: branchDetail } = useBranchDetail(
+    invoice?.branchId ?? null,
+    !!invoice?.branchId,
+  );
+  const { data: slipSettings } = useBookingSlipPlatformSettingsQuery(!!invoice);
   const updateMutation = useUpdateInvoiceMutation(invoiceId ?? '', patientId ?? '');
   const addLineMutation = useAddInvoiceLineItemMutation(invoiceId ?? '', patientId ?? '');
   const removeLineMutation = useRemoveInvoiceLineItemMutation(invoiceId ?? '', patientId ?? '');
@@ -56,6 +62,22 @@ export function InvoiceDetailPage() {
   const patientName = invoice?.patient
     ? [invoice.patient.firstName, invoice.patient.lastName].filter(Boolean).join(' ')
     : 'Patient';
+
+  const clinic = useMemo(() => {
+    if (!branchDetail) {
+      return { name: 'Clinic' as const };
+    }
+    return {
+      name: branchDetail.name,
+      address: branchDetail.address || null,
+      city: branchDetail.city || null,
+      phone: branchDetail.phone || null,
+      email: branchDetail.email || null,
+      code: branchDetail.code || null,
+      openingTime: branchDetail.openingTime || null,
+      closingTime: branchDetail.closingTime || null,
+    };
+  }, [branchDetail]);
 
   const totalNum = invoice ? parseFloat(invoice.total) : 0;
   const paidNum = (payments ?? []).reduce((s, p) => s + parseFloat(p.amount), 0);
@@ -120,41 +142,49 @@ export function InvoiceDetailPage() {
     }
   };
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = async (variant: 'standard' | 'thermal') => {
     if (!invoice) return;
     setPdfLoading(true);
     try {
-      const blob = await pdf(
-        <ReceiptPDF
-          patientName={patientName}
-          invoiceNumber={invoice.invoiceNumber}
-          invoiceDate={new Date(invoice.createdAt).toLocaleDateString()}
-          dueDate={invoice.dueDate}
-          lineItems={(invoice.lineItems ?? []).map((l) => ({
-            description: l.description,
-            quantity: l.quantity,
-            unitPrice: l.unitPrice,
-            discountAmount: l.discountAmount,
-            lineTotal: l.lineTotal,
-          }))}
-          subtotal={invoice.subtotal}
-          discountAmount={invoice.discountAmount}
-          taxRatePercent={invoice.taxRatePercent}
-          taxAmount={invoice.taxAmount}
-          total={invoice.total}
-          payments={(invoice.payments ?? []).map((p) => ({
-            amount: p.amount,
-            method: p.method,
-            paidAt: new Date(p.paidAt).toLocaleString(),
-          }))}
-        />,
-      ).toBlob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `receipt-${invoice.invoiceNumber ?? invoice.id}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const paymentRows = payments ?? invoice.payments ?? [];
+      await downloadReceiptPdf({
+        variant,
+        clinic,
+        productOwnerFooter: slipSettings?.productOwnerFooter,
+        patientName,
+        invoiceNumber: invoice.invoiceNumber,
+        invoiceId: invoice.id,
+        invoiceDate: new Date(invoice.createdAt).toLocaleDateString(),
+        dueDate: invoice.dueDate
+          ? new Date(invoice.dueDate).toLocaleDateString()
+          : null,
+        lineItems: (invoice.lineItems ?? []).map((l) => ({
+          description: l.description,
+          quantity: l.quantity,
+          unitPrice: l.unitPrice,
+          discountAmount: l.discountAmount,
+          lineTotal: l.lineTotal,
+        })),
+        subtotal: invoice.subtotal,
+        discountAmount: invoice.discountAmount,
+        taxRatePercent: invoice.taxRatePercent,
+        taxAmount: invoice.taxAmount,
+        total: invoice.total,
+        payments: paymentRows.map((p) => ({
+          amount: p.amount,
+          method: p.method,
+          paidAt: new Date(p.paidAt).toLocaleString(),
+        })),
+      });
+      toast({
+        title: 'PDF saved',
+        description:
+          variant === 'thermal'
+            ? 'Thermal (80mm) receipt saved to your downloads.'
+            : 'Standard (A4) receipt saved to your downloads.',
+        status: 'success',
+        duration: 2500,
+      });
     } catch (e) {
       toast({
         title: 'Failed to generate PDF',
@@ -230,14 +260,28 @@ export function InvoiceDetailPage() {
           ))}
         </Select>
         <Badge colorScheme="teal">{invoice.status}</Badge>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleDownloadPDF}
-          isLoading={pdfLoading}
-        >
-          Download PDF
-        </Button>
+        <HStack spacing={2}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              void handleDownloadPDF('standard');
+            }}
+            isLoading={pdfLoading}
+          >
+            Receipt (A4)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              void handleDownloadPDF('thermal');
+            }}
+            isLoading={pdfLoading}
+          >
+            Receipt (80mm)
+          </Button>
+        </HStack>
       </HStack>
 
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>

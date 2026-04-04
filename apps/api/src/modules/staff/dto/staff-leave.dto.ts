@@ -1,14 +1,12 @@
-import { IsDateString, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsUuidString } from '../../../common/validators/is-uuid-string.decorator';
 
 const TYPES = ['annual', 'sick', 'unpaid', 'other'] as const;
 const STATUSES = ['Pending', 'Approved', 'Rejected', 'Cancelled'] as const;
 
 export class CreateStaffLeaveDto {
-  @IsUUID()
+  @IsUuidString()
   userId!: string;
-
-  @IsUUID()
-  branchId!: string;
 
   @IsDateString()
   fromDate!: string;

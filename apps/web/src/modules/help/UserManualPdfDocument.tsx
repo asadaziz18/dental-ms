@@ -9,7 +9,15 @@ const styles = StyleSheet.create({
   p: { marginBottom: 6, lineHeight: 1.45 },
   bullet: { marginBottom: 3, marginLeft: 12, lineHeight: 1.4 },
   hr: { borderBottomWidth: 0.5, borderBottomColor: '#999', marginVertical: 8 },
-  footer: { position: 'absolute', bottom: 28, left: 44, right: 44, fontSize: 8, color: '#666' },
+  footer: {
+    position: 'absolute',
+    bottom: 24,
+    left: 44,
+    right: 44,
+    fontSize: 8,
+    color: '#666',
+    lineHeight: 1.35,
+  },
 });
 
 function BlockView({ block }: { block: ManualBlock }) {
@@ -35,7 +43,15 @@ function BlockView({ block }: { block: ManualBlock }) {
   }
 }
 
-export function UserManualPdfDocument({ blocks }: { blocks: ManualBlock[] }) {
+export function UserManualPdfDocument({
+  blocks,
+  productOwnerFooter,
+}: {
+  blocks: ManualBlock[];
+  /** Same platform footer as slips/receipts (Super Admin). */
+  productOwnerFooter?: string | null;
+}) {
+  const owner = productOwnerFooter?.trim();
   return (
     <Document title="Dental MS User Manual" author="Dental MS">
       <Page size="A4" style={styles.page} wrap>
@@ -47,9 +63,10 @@ export function UserManualPdfDocument({ blocks }: { blocks: ManualBlock[] }) {
         <Text
           style={styles.footer}
           fixed
-          render={({ pageNumber, totalPages }) =>
-            `Dental MS User Manual — Page ${pageNumber} of ${totalPages}`
-          }
+          render={({ pageNumber, totalPages }) => {
+            const pageLine = `Dental MS User Manual — Page ${pageNumber} of ${totalPages}`;
+            return owner ? `${owner}\n${pageLine}` : pageLine;
+          }}
         />
       </Page>
     </Document>

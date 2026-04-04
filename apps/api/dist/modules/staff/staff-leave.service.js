@@ -63,11 +63,9 @@ let StaffLeaveService = class StaffLeaveService {
             throw new common_1.NotFoundException('User not found');
         if (user.branchId !== branchId)
             throw new common_1.ForbiddenException('User not in this branch');
-        if (dto.branchId !== branchId)
-            throw new common_1.ForbiddenException('Branch mismatch');
         const leave = this.leaveRepo.create({
             userId: dto.userId,
-            branchId: dto.branchId,
+            branchId,
             fromDate: dto.fromDate,
             toDate: dto.toDate,
             type: dto.type ?? 'annual',

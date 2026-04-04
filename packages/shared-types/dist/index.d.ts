@@ -44,4 +44,5 @@ export * from './imaging';
 export * from './reports';
 export * from './subscription';
 export * from './lab';
+export * from './platform-settings';
 //# sourceMappingURL=index.d.ts.map

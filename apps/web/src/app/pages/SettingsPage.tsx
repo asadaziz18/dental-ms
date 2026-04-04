@@ -30,6 +30,16 @@ export function SettingsPage() {
             </Box>
           </ListItem>
         )}
+        {isSuperAdmin && (
+          <ListItem>
+            <Link as={RouterLink} to="/settings/booking-slip-footer" color="teal.600" _dark={{ color: 'teal.400' }}>
+              Booking slip footer
+            </Link>
+            <Box as="span" fontSize="sm" color="gray.500" ml={2}>
+              Footer on slips, receipts, reports PDFs, and user manual (all branches)
+            </Box>
+          </ListItem>
+        )}
         <ListItem>
           <Link as={RouterLink} to="/settings/branches" color="teal.600" _dark={{ color: 'teal.400' }}>
             Branch Management

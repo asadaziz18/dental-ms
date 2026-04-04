@@ -115,7 +115,7 @@ let SyncService = class SyncService {
         if (entity === 'staffLeave') {
             if (operation === 'create') {
                 const dto = payload;
-                const leave = await this.staffLeaveService.create(branchId, { ...dto, branchId });
+                const leave = await this.staffLeaveService.create(branchId, dto);
                 return { success: true, serverId: leave.id };
             }
             if (operation === 'update') {

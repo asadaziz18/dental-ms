@@ -21,6 +21,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LabsModule } from './modules/labs/labs.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
+import { PlatformSettingsModule } from './modules/platform-settings/platform-settings.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
     DashboardModule,
     LabsModule,
     PermissionsModule,
+    PlatformSettingsModule,
   ],
 })
 export class AppModule {}

@@ -1,6 +1,5 @@
 export declare class CreateStaffLeaveDto {
     userId: string;
-    branchId: string;
     fromDate: string;
     toDate: string;
     type?: string;
