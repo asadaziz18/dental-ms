@@ -12,6 +12,14 @@ export function SettingsPage() {
         Settings
       </Heading>
       <List spacing={3}>
+        <ListItem>
+          <Link as={RouterLink} to="/help/user-manual" color="teal.600" _dark={{ color: 'teal.400' }}>
+            User manual
+          </Link>
+          <Box as="span" fontSize="sm" color="gray.500" ml={2}>
+            In-app guide; download PDF or print
+          </Box>
+        </ListItem>
         {isSuperAdmin && (
           <ListItem>
             <Link as={RouterLink} to="/settings/role-permissions" color="teal.600" _dark={{ color: 'teal.400' }}>

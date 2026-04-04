@@ -79,6 +79,7 @@ pnpm web
 
 - Open **http://localhost:5173** in your browser.
 - Use **Patients** to add patients and **Appointments** for the calendar (create appointments, change status; real-time updates via Socket.IO).
+- **User manual:** after signing in, open the user menu → **User manual (PDF)** (or **Settings → User manual**). You can **Download PDF** or print and choose **Save as PDF**. The same content lives in the repo at [`docs/USER_MANUAL.md`](docs/USER_MANUAL.md).
 
 ---
 

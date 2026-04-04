@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateAppointmentDto = void 0;
 const class_validator_1 = require("class-validator");
+const is_uuid_string_decorator_1 = require("../../../common/validators/is-uuid-string.decorator");
 const TYPES = ['consultation', 'procedure', 'follow-up'];
 const STATUSES = ['Scheduled', 'Confirmed', 'In Progress', 'Completed', 'Cancelled', 'No-Show'];
 class CreateAppointmentDto {
@@ -26,12 +27,12 @@ class CreateAppointmentDto {
 }
 exports.CreateAppointmentDto = CreateAppointmentDto;
 __decorate([
-    (0, class_validator_1.IsUUID)('all'),
+    (0, is_uuid_string_decorator_1.IsUuidString)(),
     __metadata("design:type", String)
 ], CreateAppointmentDto.prototype, "patientId", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsUUID)('all'),
+    (0, is_uuid_string_decorator_1.IsUuidString)(),
     __metadata("design:type", Object)
 ], CreateAppointmentDto.prototype, "doctorId", void 0);
 __decorate([

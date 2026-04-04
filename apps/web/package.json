@@ -35,7 +35,9 @@
     "@tiptap/starter-kit": "^2.10.2",
     "@tiptap/extension-placeholder": "^2.10.2",
     "@react-pdf/renderer": "^4.1.0",
-    "recharts": "^2.15.0"
+    "recharts": "^2.15.0",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",

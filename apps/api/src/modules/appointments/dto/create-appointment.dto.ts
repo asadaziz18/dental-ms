@@ -4,19 +4,19 @@ import {
   IsBoolean,
   IsDateString,
   IsIn,
-  IsUUID,
   MaxLength,
 } from 'class-validator';
+import { IsUuidString } from '../../../common/validators/is-uuid-string.decorator';
 
 const TYPES = ['consultation', 'procedure', 'follow-up'] as const;
 const STATUSES = ['Scheduled', 'Confirmed', 'In Progress', 'Completed', 'Cancelled', 'No-Show'] as const;
 
 export class CreateAppointmentDto {
-  @IsUUID('all')
+  @IsUuidString()
   patientId!: string;
 
   @IsOptional()
-  @IsUUID('all')
+  @IsUuidString()
   doctorId?: string | null;
 
   @IsOptional()

@@ -1,9 +1,9 @@
-import { IsOptional, IsDateString, IsUUID } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsDateString } from 'class-validator';
+import { IsUuidString } from '../../../common/validators/is-uuid-string.decorator';
 
 export class AppointmentQueryDto {
   @IsOptional()
-  @IsUUID('all')
+  @IsUuidString()
   branchId?: string;
 
   @IsOptional()
@@ -11,7 +11,7 @@ export class AppointmentQueryDto {
   date?: string;
 
   @IsOptional()
-  @IsUUID('all')
+  @IsUuidString()
   doctorId?: string;
 
   @IsOptional()

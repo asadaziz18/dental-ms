@@ -8,6 +8,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@dental-ms/shared-types': path.resolve(__dirname, '../../packages/shared-types/src/index.ts'),
+      '@docs': path.resolve(__dirname, '../../docs'),
     },
   },
   optimizeDeps: {

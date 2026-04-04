@@ -43,6 +43,9 @@ export function UserMenu() {
             <MenuDivider />
           </>
         )}
+        <MenuItem as={RouterLink} to="/help/user-manual">
+          User manual (PDF)
+        </MenuItem>
         <MenuItem
           onClick={toggleColorMode}
           icon={colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}

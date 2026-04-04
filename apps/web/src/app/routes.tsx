@@ -27,6 +27,7 @@ import {
 } from '@/modules/subscription/pages';
 import { SettingsSubscriptionPage } from '@/modules/subscription/pages/SettingsSubscriptionPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { UserManualPage } from '@/modules/help';
 import { RolePermissionsPage } from '@/modules/permissions';
 import {
   BranchListPage,
@@ -87,6 +88,7 @@ export function AppRoutes() {
         <Route path="/settings/branches/:id/edit" element={<RoleGuard roles={['SuperAdmin', 'BranchAdmin']}><EditBranchPage /></RoleGuard>} />
         <Route path="/settings/branches/:id/sub/new" element={<RoleGuard roles={['SuperAdmin']}><CreateSubBranchPage /></RoleGuard>} />
         <Route path="/settings/subscription" element={<SettingsSubscriptionPage />} />
+        <Route path="/help/user-manual" element={<UserManualPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

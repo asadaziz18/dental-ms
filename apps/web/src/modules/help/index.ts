@@ -1,0 +1,1 @@
+export { UserManualPage } from './UserManualPage';
