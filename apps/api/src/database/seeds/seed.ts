@@ -119,6 +119,7 @@ const PROCEDURES = [
 async function runSeed() {
   if (!dataSource.isInitialized) {
     await dataSource.initialize();
+    await dataSource.synchronize();
   }
 
   const qr = dataSource.createQueryRunner();
